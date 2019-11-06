@@ -186,7 +186,7 @@ def train(
 
     # Initialize distributed training if needed
     distributed = (local_rank != -1)
-    args.distributed = distributed
+    args['distributed'] = distributed
 
     if distributed:
         torch.cuda.set_device(local_rank)
