@@ -175,7 +175,7 @@ def train(
     fp16='',
     local_rank=-1
 ):
-    args = locals()
+    args = {**locals()}
 
     # logging is set to INFO (resp. WARN) for main (resp. auxiliary) process. logger.info => log main process only, logger.warning => log all processes
     logging.basicConfig(
