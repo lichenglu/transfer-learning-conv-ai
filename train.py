@@ -173,7 +173,8 @@ def train(
     eval_before_start=False,
     device="cuda" if torch.cuda.is_available() else "cpu",
     fp16='',
-    save_path='',
+    path_prefix='',
+    log_dir='',
     local_rank=-1
 ):
     args = {**locals()}
@@ -309,7 +310,8 @@ def train(
         evaluator.add_event_handler(Events.COMPLETED, lambda _: pbar.log_message(
             "Validation: %s" % pformat(evaluator.state.metrics)))
 
-        log_dir = make_logdir(model_checkpoint, path=save_path)
+        log_dir = log_dir if log_dir else make_logdir(
+            model_checkpoint, path=path_prefix)
         tb_logger = TensorboardLogger(log_dir)
 
         tb_logger.attach(trainer, log_handler=OutputHandler(
