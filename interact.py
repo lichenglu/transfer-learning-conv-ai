@@ -98,7 +98,7 @@ def sample_sequence(personality, history, tokenizer, model, args, current_output
     return current_output
 
 
-def answer(
+def interact(
     dataset_path,
     dataset_cache='dataset_cache',
     model='gpt2',
@@ -160,3 +160,59 @@ def answer(
         history = history[-(2*max_history+1):]
         out_text = tokenizer.decode(out_ids, skip_special_tokens=True)
         print(out_text)
+
+
+def predict(
+    dataset_path,
+    dataset_cache='dataset_cache',
+    model='gpt2',
+    model_checkpoint='',
+    max_history=1,
+    device="cuda" if torch.cuda.is_available() else "cpu",
+    no_sample=True,
+    max_length=20,
+    min_length=1,
+    seed=42,
+    temperature=0.7,
+    top_k=0,
+    top_p=0.9
+):
+    args = locals()
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__file__)
+    logger.info(pformat(args))
+
+    if model_checkpoint == "":
+        if model == 'gpt2':
+            raise ValueError(
+                "Interacting with GPT2 requires passing a finetuned model_checkpoint")
+        else:
+            model_checkpoint = download_pretrained_model()
+
+    random.seed(seed)
+    torch.random.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+
+    logger.info("Get pretrained model and tokenizer")
+    tokenizer_class, model_class = (GPT2Tokenizer, GPT2LMHeadModel) if model == 'gpt2' else (
+        OpenAIGPTTokenizer, OpenAIGPTLMHeadModel)
+    tokenizer = tokenizer_class.from_pretrained(model_checkpoint)
+    model = model_class.from_pretrained(model_checkpoint)
+    model.to(device)
+    add_special_tokens_(model, tokenizer)
+
+    logger.info("Sample a personality")
+    dataset = get_dataset(tokenizer, dataset_path, dataset_cache)
+    personalities = [dialog["personality"]
+                     for dataset in dataset.values() for dialog in dataset]
+    personality = random.choice(personalities)
+    logger.info("Selected personality: %s",
+                tokenizer.decode(chain(*personality)))
+
+    history = []
+    history.append(tokenizer.encode(raw_text))
+    with torch.no_grad():
+        out_ids = sample_sequence(personality, history, tokenizer, model, args)
+    out_text = tokenizer.decode(out_ids, skip_special_tokens=True)
+    return out_text
