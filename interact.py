@@ -164,6 +164,7 @@ def interact(
 
 def predict(
     dataset_path,
+    raw_text,
     dataset_cache='dataset_cache',
     model='gpt2',
     model_checkpoint='',
@@ -175,7 +176,7 @@ def predict(
     seed=42,
     temperature=0.7,
     top_k=0,
-    top_p=0.9
+    top_p=0.9,
 ):
     args = locals()
 
