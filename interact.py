@@ -164,7 +164,7 @@ def interact(
 
 def predict(
     dataset_path,
-    raw_text,
+    raw_texts,
     dataset_cache='dataset_cache',
     model='gpt2',
     model_checkpoint='',
@@ -211,9 +211,13 @@ def predict(
     logger.info("Selected personality: %s",
                 tokenizer.decode(chain(*personality)))
 
-    history = []
-    history.append(tokenizer.encode(raw_text))
-    with torch.no_grad():
-        out_ids = sample_sequence(personality, history, tokenizer, model, args)
-    out_text = tokenizer.decode(out_ids, skip_special_tokens=True)
-    return out_text
+    outputs = []
+    for raw_text in raw_texts:
+        history = []
+        history.append(tokenizer.encode(raw_text))
+        with torch.no_grad():
+            out_ids = sample_sequence(
+                personality, history, tokenizer, model, args)
+        out_text = tokenizer.decode(out_ids, skip_special_tokens=True)
+        outputs.append(out_text)
+    return outputs
