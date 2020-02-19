@@ -102,9 +102,9 @@ def get_data_loaders(
     logger.info("Build inputs and labels")
     datasets = {"train": defaultdict(list), "valid": defaultdict(list)}
     for dataset_name, dataset in personachat.items():
-        num_candidates = len(dataset[0]["utterances"][0]["candidates"])
+        _num_candidates = len(dataset[0]["utterances"][0]["candidates"])
         if num_candidates > 0 and dataset_name == 'train':
-            num_candidates = min(num_candidates, num_candidates)
+            num_candidates = min(num_candidates, _num_candidates)
         for dialog in dataset:
             persona = dialog["personality"].copy()
             for _ in range(personality_permutations):
