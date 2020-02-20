@@ -2,8 +2,9 @@ from pathlib import Path
 import shutil
 import unittest
 
-from pytorch_transformers import OpenAIGPTTokenizer, GPT2Tokenizer
+from transformers import OpenAIGPTTokenizer, GPT2Tokenizer
 from train import ATTR_TO_SPECIAL_TOKEN, SPECIAL_TOKENS
+
 
 class TestSpecialTokenTreatment(unittest.TestCase):
 
@@ -15,7 +16,8 @@ class TestSpecialTokenTreatment(unittest.TestCase):
         shutil.rmtree(self.save_dir)
 
     def test_special_tokens_checkpoint_behavior(self):
-        toks = [OpenAIGPTTokenizer.from_pretrained('openai-gpt'), GPT2Tokenizer.from_pretrained('gpt2')]
+        toks = [OpenAIGPTTokenizer.from_pretrained(
+            'openai-gpt'), GPT2Tokenizer.from_pretrained('gpt2')]
         for tok in toks:
             self.assertEqual(len(tok.added_tokens_encoder), 0)
             tok.add_special_tokens(ATTR_TO_SPECIAL_TOKEN)
